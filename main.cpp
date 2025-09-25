@@ -1,13 +1,20 @@
+#include <string>
+
+
+
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_main.h"
+#include "SDL3_image/SDL_image.h"
 
-int main(int argc, char** argv)
-{
-  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)){
-    return -1;
-  }
+// cmake --build build --target run
 
-  SDL_Quit();
+const int WIDTH = 1000;
+const int HEIGHT = 500;
 
-  return 0;
+
+
+int main(int argv, char** args) {
+
+
+	return 0;
 }
