@@ -8,12 +8,12 @@
 
 // cmake --build build --target run
 
-const int WIDTH = 1000;
-const int HEIGHT = 500;
+const int WIDTH = 1500;
+const int HEIGHT = 1000;
 
 int main(int argv, char** args) {
 
-	Application app("Learning", 500, 500);
+	Application app("Learning", WIDTH, HEIGHT);
 	app.run();
 
 	return 0;

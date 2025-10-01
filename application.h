@@ -28,4 +28,5 @@ private:
 
   void drawCircle(vec2 pos, int radius);
   std::vector<vec2> Application::getCirclePoints(vec2 pos, int radius);
+  bool Application::rayCircleIntersect(vec2 pos, int radius, vec2 origin, vec2 dir, float& t);
 };

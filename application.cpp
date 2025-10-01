@@ -75,13 +75,43 @@ std::vector<vec2> Application::getCirclePoints(vec2 pos, int radius) {
   std::vector<vec2> points;
   for (int i = (pos.x - radius); i < (pos.x + radius); i++) {
     for (int j = (pos.y - radius); j < (pos.y + radius); j++) {
-      int distance = dist(vec2(i, j), pos);
-      if (distance == radius) {
+      float distance = dist(vec2(i, j), pos);
+      float diff = abs(distance - radius);
+      if (diff < 1.0f) {
         points.push_back(vec2(i, j));
       }
     }
   }
   return points;
+}
+
+bool Application::rayCircleIntersect(vec2 pos, int radius, vec2 origin, vec2 dir, float& t) {
+  float a = 1.0;
+  float b = dot(dir * 2.0f, origin - pos);
+  float c = size(origin - pos) * size(origin - pos) - radius * radius;
+
+  float discriminant = b * b - 4 * a * c;
+
+  if (discriminant < 0) {
+    return false;
+  } 
+  else {
+    float t1 = (-b + sqrt(discriminant)) / 2 * a;
+    float t2 = (-b - sqrt(discriminant)) / 2 * a;
+
+    if (t1 < 0 && t2 < 0) {
+      return false;
+    }
+    
+    if (t1 < 0 && t2 > 0) {
+      t = t2;
+    } else if (t2 < 0 && t1 > 0) {
+      t = t1;
+    } else {
+      t = std::min(t1, t2);
+    }
+    return true;
+  }
 }
 
 void Application::render() {
@@ -94,21 +124,23 @@ void Application::render() {
   vec2 circleOrigin = vec2(mouseX, mouseY);
   drawCircle(circleOrigin, 50);
 
+  drawCircle(vec2(200, 200), 50);
+
   std::vector<vec2> circlePoints = getCirclePoints(circleOrigin, 50);
-
-
 
   for (vec2 point : circlePoints) {
     vec2 direction = normalise(vec2(point.x - circleOrigin.x, point.y - circleOrigin.y));
-    
-    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
-    SDL_RenderLine(renderer, point.x, point.y, (point.x + direction.x * 200), (point.y + direction.y * 200));
 
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-    SDL_RenderLine(renderer, point.x, point.y, circleOrigin.x, circleOrigin.y);
+    float t;
+    bool hit = rayCircleIntersect(vec2(200, 200), 50, point, direction, t);
 
+    SDL_SetRenderDrawColor(renderer, 255, 225, 0, 255);
+    if (!hit) {
+      SDL_RenderLine(renderer, point.x, point.y, (point.x + direction.x * 500), (point.y + direction.y * 500));
+    } else {
+      SDL_RenderLine(renderer, point.x, point.y, (point.x + direction.x * t), (point.y + direction.y * t));
+    }
   }
-
 
   SDL_RenderPresent(renderer);
 }
