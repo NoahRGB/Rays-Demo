@@ -12,6 +12,10 @@ add_executable(rays
     application.cpp
     vec2.h
     vec2.cpp
+    circle.h
+    circle.cpp
+    ray.h
+    ray.cpp
 )
 
 target_link_libraries(rays PRIVATE SDL3::SDL3)

@@ -1,5 +1,7 @@
+#pragma once
 
 struct vec2 {
+    vec2();
     vec2(float x, float y);
     float x, y;
 
@@ -7,14 +9,12 @@ struct vec2 {
         return vec2(x - v.x, y - v.y);
     }
 
-    vec2 operator*(float num) {
-        x *= num;
-        y *= num;
-        return *this;
+    vec2 operator*(float num) const {
+        return vec2(x * num, y * num);
     }
 };
 
-float dist(vec2& v1, vec2& v2);
-vec2 normalise(vec2& v);
-float dot(vec2& v1, vec2& v2);
-float size(vec2& v);
+float dist(const vec2& v1, const vec2& v2);
+vec2 norm(const vec2& v);
+float dot(const vec2& v1, const vec2& v2);
+float size(const vec2& v);

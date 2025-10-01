@@ -6,6 +6,7 @@
 #include "SDL3/SDL.h"
 
 #include "vec2.h"
+#include "circle.h"
 
 class Application {
 public:
@@ -26,7 +27,9 @@ private:
   void handleInput();
   void render();
 
-  void drawCircle(vec2 pos, int radius);
-  std::vector<vec2> Application::getCirclePoints(vec2 pos, int radius);
-  bool Application::rayCircleIntersect(vec2 pos, int radius, vec2 origin, vec2 dir, float& t);
+  bool oldRayCircleIntersect(vec2 pos, int radius, vec2 origin, vec2 dir, float& t);
+
+  circle mouseCircle;
+  std::vector<circle> obstacles;
+
 };

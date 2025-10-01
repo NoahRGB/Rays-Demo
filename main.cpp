@@ -8,8 +8,8 @@
 
 // cmake --build build --target run
 
-const int WIDTH = 1500;
-const int HEIGHT = 1000;
+const int WIDTH = 700;
+const int HEIGHT = 700;
 
 int main(int argv, char** args) {
 

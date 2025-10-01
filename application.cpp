@@ -1,6 +1,9 @@
 #include "application.h"
+#include "circle.h"
+#include "ray.h"
 
 #include <iostream>
+#include "math.h"
 
 Application::Application(std::string name, int width, int height) {
   SDL_Init(SDL_INIT_VIDEO);
@@ -11,6 +14,10 @@ Application::Application(std::string name, int width, int height) {
   SDL_HideCursor();
 
   done = false;
+
+  mouseCircle = { vec2(0.0f, 0.0f), 50.0f };
+  obstacles.push_back({ vec2(200.0f, 200.0f), 50.0f });
+  obstacles.push_back({ vec2(400.0f, 400.0f), 50.0f });
 }
 
 Application::~Application() {
@@ -60,32 +67,7 @@ void Application::handleInput() {
   }
 }
 
-void Application::drawCircle(vec2 pos, int radius) {
-  for (int i = (pos.x - radius); i < (pos.x + radius); i++) {
-    for (int j = (pos.y - radius); j < (pos.y + radius); j++) {
-      int distance = dist(vec2(i, j), pos);
-      if (distance < radius) {
-        SDL_RenderPoint(renderer, i, j);
-      }
-    }
-  }
-}
-
-std::vector<vec2> Application::getCirclePoints(vec2 pos, int radius) {
-  std::vector<vec2> points;
-  for (int i = (pos.x - radius); i < (pos.x + radius); i++) {
-    for (int j = (pos.y - radius); j < (pos.y + radius); j++) {
-      float distance = dist(vec2(i, j), pos);
-      float diff = abs(distance - radius);
-      if (diff < 1.0f) {
-        points.push_back(vec2(i, j));
-      }
-    }
-  }
-  return points;
-}
-
-bool Application::rayCircleIntersect(vec2 pos, int radius, vec2 origin, vec2 dir, float& t) {
+bool Application::oldRayCircleIntersect(vec2 pos, int radius, vec2 origin, vec2 dir, float& t) {
   float a = 1.0;
   float b = dot(dir * 2.0f, origin - pos);
   float c = size(origin - pos) * size(origin - pos) - radius * radius;
@@ -118,27 +100,38 @@ void Application::render() {
   SDL_SetRenderDrawColor(renderer, 54, 54, 54, 255);
   SDL_RenderClear(renderer);
 
+  mouseCircle.pos.x = mouseX;
+  mouseCircle.pos.y = mouseY;
+
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  mouseCircle.draw(renderer);
+  for (circle obstacle : obstacles) {
+    obstacle.draw(renderer);
+  }
+  
 
-
-  vec2 circleOrigin = vec2(mouseX, mouseY);
-  drawCircle(circleOrigin, 50);
-
-  drawCircle(vec2(200, 200), 50);
-
-  std::vector<vec2> circlePoints = getCirclePoints(circleOrigin, 50);
+  std::vector<vec2> circlePoints = mouseCircle.getCirclePoints();
 
   for (vec2 point : circlePoints) {
-    vec2 direction = normalise(vec2(point.x - circleOrigin.x, point.y - circleOrigin.y));
+    ray ray(point, norm(vec2(point - mouseCircle.pos)));
 
-    float t;
-    bool hit = rayCircleIntersect(vec2(200, 200), 50, point, direction, t);
+    bool hitFound = false;
+    float bestT = 999;
 
+    for (circle obstacle : obstacles) {
+      float t;
+      bool hit = ray.rayCircleIntersect(obstacle, t);
+      if (hit) {
+        hitFound = true;
+        if (t < bestT) bestT = t;
+      }
+    }
+    
     SDL_SetRenderDrawColor(renderer, 255, 225, 0, 255);
-    if (!hit) {
-      SDL_RenderLine(renderer, point.x, point.y, (point.x + direction.x * 500), (point.y + direction.y * 500));
+    if (hitFound) {
+      SDL_RenderLine(renderer, ray.origin.x, ray.origin.y, (ray.origin.x + ray.dir.x * bestT), (ray.origin.y + ray.dir.y * bestT));
     } else {
-      SDL_RenderLine(renderer, point.x, point.y, (point.x + direction.x * t), (point.y + direction.y * t));
+      SDL_RenderLine(renderer, ray.origin.x, ray.origin.y, (ray.origin.x + ray.dir.x * 500), (ray.origin.y + ray.dir.y * 500));
     }
   }
 
